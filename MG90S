@@ -1,0 +1,56 @@
+#include <Servo.h>
+
+int degree = 0;
+int degree2 = 0;
+int degree3 = 0;
+int P1 = 4;
+int P2 = 3;
+int P3 = 2;
+
+Servo servo_5;
+Servo servo_6;
+Servo servo_7;
+
+void setup()
+{
+  pinMode(P1, INPUT);
+  servo_5.attach(5, 500, 2500);
+  pinMode(P2, INPUT);
+  servo_6.attach(6, 500, 2500);
+  pinMode(P3, INPUT);
+  servo_7.attach(7, 500, 2500);
+}
+
+void loop()
+{
+  if (digitalRead(P1) == 1) {
+    delay(20); // Wait for 20 millisecond(s)
+    if (digitalRead(P1) == 1) {
+      degree = servo_5.read();
+      servo_5.write((degree + 5));
+      delay(30); // Wait for 30 millisecond(s)
+    }
+    while (digitalRead(P1) == 1) {
+    }
+  }
+  if (digitalRead(P2) == 1) {
+    delay(20); // Wait for 20 millisecond(s)
+    if (digitalRead(P2) == 1) {
+      degree2 = servo_6.read();
+      servo_6.write((degree2 + 5));
+      delay(30); // Wait for 30 millisecond(s)
+    }
+    while (digitalRead(P2) == 1) {
+    }
+  }
+  if (digitalRead(P3) == 1) {
+    delay(20); // Wait for 20 millisecond(s)
+    if (digitalRead(P3) == 1) {
+      degree3 = servo_7.read();
+      servo_7.write((degree3 + 5));
+      delay(30); // Wait for 30 millisecond(s)
+    }
+    while (digitalRead(P3) == 1) {
+    }
+  }
+}

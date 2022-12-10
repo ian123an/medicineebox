@@ -1,0 +1,310 @@
+#include <Wire.h>
+#include <RtcDS3231.h>
+#include<LiquidCrystal_I2C.h>
+#include <Servo.h>
+
+LiquidCrystal_I2C lcd(0x27,20,4);
+RtcDS3231<TwoWire> Rtc(Wire);
+
+int degree = 0;
+int degree2 = 0;
+int degree3 = 0;
+
+Servo servo_5;
+Servo servo_6;
+Servo servo_7;
+
+//************Button*****************//
+int P1=5; // Button SET MENU'
+int P2=6; // Button +
+int P3=7; // Button -
+int P4=8; // SWITCH Alarm
+int P5 = 9;
+int P6 = 10;
+int P7 = 11;
+//**************Alarm***************//
+#define buzzer 12
+#define LED 13
+
+//************Variables**************//
+int hourupg,minupg,yearupg,monthupg,dayupg,menu =0,setAll =0;
+
+uint8_t alarmHours = 0, alarmMinutes = 0 ;  // Holds the current alarm time
+
+void setup()
+{
+  lcd.init();
+  lcd.backlight();
+  lcd.clear();
+
+  pinMode(P1,INPUT_PULLUP);
+  pinMode(P2,INPUT_PULLUP);
+  pinMode(P3,INPUT_PULLUP);
+  pinMode(P4,INPUT_PULLUP);
+  
+  pinMode(P5, INPUT);
+  servo_5.attach(5, 500, 2500);
+  pinMode(P6, INPUT);
+  servo_6.attach(6, 500, 2500);
+  pinMode(P7, INPUT);
+  servo_7.attach(7, 500, 2500);
+  
+  pinMode(LED,OUTPUT);
+  pinMode(buzzer, OUTPUT); // Set buzzer as an output
+  printAllOff();
+  Serial.begin(9600);
+  Wire.begin();
+  Rtc.Begin();
+
+      // The default display shows the date and time
+  int menu=0;
+  
+  Serial.begin(115200);
+}
+
+void loop()
+{
+   if((digitalRead(P2)== LOW) && (digitalRead(P3)== LOW))                                                                                                                                                                     
+  {
+    DisplaySetHourAll();
+    DisplaySetMinuteAll();
+    lcd.clear();
+    lcd.setCursor(5,0);
+    lcd.print("ALARM");
+    lcd.setCursor(5,1);
+    lcd.print(alarmHours, DEC);
+    lcd.print(":");
+    lcd.print(alarmMinutes, DEC);
+    delay(1000);
+    lcd.clear();
+  }
+// in which subroutine should we go?
+  if (menu==0)
+    {
+     DisplayDateTime(); // void DisplayDateTime
+     Alarm(); // Alarm control
+     }
+    delay(100);
+
+    if (digitalRead(P1) == 1) {
+    delay(20); // Wait for 20 millisecond(s)
+    if (digitalRead(P1) == 1) {
+      degree = servo_5.read();
+      servo_5.write((degree + 5));
+      delay(30); // Wait for 30 millisecond(s)
+    }
+    while (digitalRead(P1) == 1) {
+    }
+  }
+  if (digitalRead(P2) == 1) {
+    delay(20); // Wait for 20 millisecond(s)
+    if (digitalRead(P2) == 1) {
+      degree2 = servo_6.read();
+      servo_6.write((degree2 + 5));
+      delay(30); // Wait for 30 millisecond(s)
+    }
+    while (digitalRead(P2) == 1) {
+    }
+  }
+  if (digitalRead(P3) == 1) {
+    delay(20); // Wait for 20 millisecond(s)
+    if (digitalRead(P3) == 1) {
+      degree3 = servo_7.read();
+      servo_7.write((degree3 + 5));
+      delay(30); // Wait for 30 millisecond(s)
+    }
+    while (digitalRead(P3) == 1) {
+    }
+  }
+ }
+ 
+void DisplayDateTime ()
+{
+// We show the current date and time
+  RtcDateTime now = Rtc.GetDateTime();
+
+  lcd.setCursor(0, 2);
+  lcd.print("Time : ");
+  
+  if (now.Hour()<=9)
+  {
+    lcd.print("0");
+  }
+  lcd.print(now.Hour(), DEC);
+  hourupg=now.Hour();
+  lcd.print(":");
+  if (now.Minute()<=9)
+  {
+    lcd.print("0");
+  }
+  lcd.print(now.Minute(), DEC);
+  minupg=now.Minute();
+  lcd.print(":");
+  if (now.Second()<=9)
+  {
+    lcd.print("0");
+  }
+  lcd.print(now.Second(), DEC);
+
+  lcd.setCursor(0, 1);
+  lcd.print("Date : ");
+  if (now.Day()<=9)
+  {
+    lcd.print("0");
+  }
+  lcd.print(now.Year(), DEC);
+  yearupg=now.Year();
+  
+  lcd.print("/");
+  if (now.Month()<=9)
+  {
+    lcd.print("0");
+  }
+  lcd.print(now.Month(), DEC);
+  monthupg=now.Month();
+  lcd.print("/");
+  lcd.print(now.Day(), DEC);
+  dayupg=now.Day();
+ 
+  char DOW[][10]={"Sunday   ","Monday   ","Tuesday  ","Wednesday","Thursday ","Friday   ","Saturday "};
+  lcd.setCursor(0, 0); 
+  lcd.print("Day  : ");
+  lcd.print(DOW[now.DayOfWeek()]); // if it appears error in the code, enter the code given below
+  //lcd.print(DOW[now.dayOfWeek()]);
+}
+
+void DisplaySetHourAll()// Setting the alarm hour
+{
+  while(digitalRead(P1)==HIGH){
+
+  lcd.clear();
+
+  if(digitalRead(P2)==LOW)
+  {
+    if(alarmHours==23)
+    {
+      alarmHours=0;
+    }
+    else
+    {
+      alarmHours=alarmHours+1;
+    }
+  }
+   if(digitalRead(P3)==LOW)
+  {
+    if(alarmHours==0)
+    {
+      alarmHours=23;
+    }
+    else
+    {
+      alarmHours=alarmHours-1;
+    }
+  }
+  lcd.setCursor(0,0);
+  lcd.print("Set HOUR Alarm:");
+  lcd.setCursor(0,1);
+  lcd.print(alarmHours,DEC);
+  delay(200);
+ }
+ delay(200);
+}
+
+void DisplaySetMinuteAll()// Setting the alarm minutes
+ {
+  while(digitalRead(P1)==HIGH){ 
+
+  lcd.clear();
+  if(digitalRead(P2)==LOW)
+  {
+    if (alarmMinutes==59)
+    {
+      alarmMinutes=0;
+    }
+    else
+    {
+      alarmMinutes=alarmMinutes+1;
+    }
+  }
+   if(digitalRead(P3)==LOW)
+  {
+    if (alarmMinutes==0)
+    {
+      alarmMinutes=59;
+    }
+    else
+    {
+      alarmMinutes=alarmMinutes-1;
+    }
+  }
+  lcd.setCursor(0,0);
+  lcd.print("Set MIN. Alarm:");
+  lcd.setCursor(0,1);
+  lcd.print(alarmMinutes,DEC);
+  delay(200);
+ }
+ delay(200);
+}
+
+void printAllOn(){
+   lcd.setCursor(0,3);
+  lcd.print("Alarm: ");
+  
+  if (alarmHours <= 9)
+  {
+    lcd.print("0");
+  }
+  lcd.print(alarmHours, DEC);
+  
+  lcd.print(":");
+  if (alarmMinutes <= 9)
+  {
+    lcd.print("0");
+  }
+  lcd.print(alarmMinutes, DEC); 
+}
+
+void printAllOff() {
+  lcd.setCursor(0, 3);
+  lcd.print("Alarm: Off  ");  
+}
+
+void Alarm(){
+   if(digitalRead(P4)== LOW)
+  {
+   setAll=setAll+1;
+  }
+  if (setAll==0)
+    {
+     printAllOff();
+     noTone (buzzer);
+     digitalWrite(LED,LOW);
+     }
+  if (setAll==1)
+    {
+
+     printAllOn();    
+  
+     RtcDateTime now = Rtc.GetDateTime();
+     if ( now.Hour() == alarmHours && now.Minute() == alarmMinutes )
+        {
+         lcd.noBacklight();
+         RtcDateTime now = Rtc.GetDateTime();
+         digitalWrite(LED,HIGH);
+         tone(buzzer,880); //play the note "A5" (LA5)
+         delay (300);
+         tone(buzzer,698); //play the note "F6" (FA5)
+         lcd.backlight();
+        }
+    else{
+         noTone (buzzer);
+         digitalWrite(LED,LOW);
+        }
+    
+    } 
+  if (setAll==2)
+    {
+     setAll=0;
+    }
+    delay(200);
+}

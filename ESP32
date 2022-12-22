@@ -8,7 +8,7 @@
 #define FORCE2 34
 #define FORCE3 35
 #define FORCE_OUT 32
-#define LINE_TOKEN "2vzZwg7xq5KoNoCy9wD3bit59erBxabH0Ov7LJFNH2A"
+#define LINE_TOKEN "AUAcvImMQ5eGAhYxntrQjThbBj7i0yoeaI68TMMb6vy"
 
 // 設定網路基地台SSID跟密碼
 char ssid[] = "milkcoco";
@@ -70,7 +70,7 @@ void loop(void)
     fsr3 = analogRead(FORCE3);
     fsr_out = analogRead(FORCE_OUT);
     
-    // 檢查兩個值是否為空值
+    // 檢查是否為空值
     if (isnan(humidity) || isnan(temp_f)) {
        Serial.println("Failed to read from DHT sensor!");
        return;
@@ -110,31 +110,31 @@ void loop(void)
   LINE.setToken(LINE_TOKEN);
 
   // 先換行再顯示
-  LINE.notify("\n" + tempe1 + " ；" + humid1);
+  LINE.notify("藥盒過於潮濕\n" + tempe1 + " ；" + humid1);
  }
-  delay(1000);
+  delay(10000);
   if(fsr1 < 0)
   {
     LINE.setToken(LINE_TOKEN);
-    LINE.notify("\n" + fsr1 );
+    LINE.notify("一號藥盤快沒藥了\n" + fsr1 );
   }
-  delay(1000);
+  delay(10000);
   if(fsr2 < 0)
   {
     LINE.setToken(LINE_TOKEN);
-    LINE.notify("\n" + fsr2 );
+    LINE.notify("二號藥盤快沒藥了\n" + fsr2 );
   }
-  delay(1000);
+  delay(10000);
   if(fsr3 < 0)
   {
     LINE.setToken(LINE_TOKEN);
-    LINE.notify("\n" + fsr3 );
+    LINE.notify("三號藥盤快沒藥了\n" + fsr3 );
   }
-  delay(1000);
+  delay(10000);
   if(fsr_out > 0)
   {
     LINE.setToken(LINE_TOKEN);
-    LINE.notify("\n" + fsr_out );
+    LINE.notify("病人未取藥\n" + fsr_out );
   }
-  delay(12000);
+  delay(120000);
 }

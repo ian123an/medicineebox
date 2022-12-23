@@ -7,7 +7,8 @@ RtcDS3231<TwoWire> Rtc(Wire);
 LiquidCrystal_I2C lcd(0x27,20,4); // Display  I2C 20 x 4
 
 Servo servo_0,servo_1,servo_2; // 建立Servo物件
-
+unsigned long previousMillis1 = 0,previousMillis2 = 0,previousMillis3 = 0;
+const long interval1 = 50000,interval2 = 50000,interval3 = 50000;
 
 int P1=6; // Button SET MENU'
 int P2=7; // Button +
@@ -399,6 +400,7 @@ void Alarm(){
     {
      printAllOn1();    
      RtcDateTime now = Rtc.GetDateTime();
+     unsigned long currentMillis1 = millis();
      if ( now.Hour() == alarmHours1 && now.Minute() == alarmMinutes1)
         {
          lcd.noBacklight();
@@ -410,10 +412,13 @@ void Alarm(){
          delay(300);    
          lcd.backlight();
          delay(300);
+         if (currentMillis1 - previousMillis1 >= interval1) {
          servo_0.write(60); 
          delay(250);
          servo_0.write(90);
          delay(1000);
+         previousMillis1 = currentMillis1;
+         }
         }
     else{
          noTone (buzzer);
@@ -426,6 +431,7 @@ void Alarm(){
      printAllOn2();    
   
      RtcDateTime now = Rtc.GetDateTime();
+     unsigned long currentMillis2 = millis();
      if ( now.Hour() == alarmHours2 && now.Minute() == alarmMinutes2 )
         {
          lcd.noBacklight();
@@ -436,10 +442,13 @@ void Alarm(){
          tone(buzzer,698); //play the note "F6" (FA5)
          lcd.backlight();
          delay(300);
+        if (currentMillis2 - previousMillis2 >= interval2) {
          servo_1.write(60); 
          delay(250);
          servo_1.write(90);
          delay(1000);
+         previousMillis2 = currentMillis2;
+         }
         }
     else{
          noTone (buzzer);
@@ -452,6 +461,7 @@ void Alarm(){
      printAllOn3();    
   
      RtcDateTime now = Rtc.GetDateTime();
+     unsigned long currentMillis3 = millis();
      if ( now.Hour() == alarmHours3 && now.Minute() == alarmMinutes3 )
         {
          lcd.noBacklight();
@@ -462,10 +472,13 @@ void Alarm(){
          tone(buzzer,698); //play the note "F6" (FA5)
          lcd.backlight();
          delay(300);
+         if (currentMillis3 - previousMillis3 >= interval3) {
          servo_2.write(60); 
          delay(250);
          servo_2.write(90);
          delay(1000);
+         previousMillis3 = currentMillis3;
+         }
         }
     else{
          noTone (buzzer);

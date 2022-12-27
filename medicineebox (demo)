@@ -1,70 +1,64 @@
 #include <Wire.h>
 #include <RtcDS3231.h>
-#include<LiquidCrystal_I2C.h>
 #include <Servo.h>
+#include <LiquidCrystal_I2C.h>
 
-LiquidCrystal_I2C lcd(0x27,20,4);
 RtcDS3231<TwoWire> Rtc(Wire);
+LiquidCrystal_I2C lcd(0x27,20,4); // Display  I2C 20 x 4
 
-int degree = 0;
-int degree2 = 0;
-int degree3 = 0;
+Servo servo_0,servo_1,servo_2; // 建立Servo物件
+unsigned long previousMillis1 = 0,previousMillis2 = 0,previousMillis3 = 0;
+const long interval1 = 50000,interval2 = 50000,interval3 = 50000;
 
-Servo servo_5;
-Servo servo_6;
-Servo servo_7;
+int P1=6; // Button SET MENU'
+int P2=7; // Button +
+int P3=8; // Button -
+int P4=9; // SWITCH Alarm
+int P5=5;
 
-//************Button*****************//
-int P1=5; // Button SET MENU'
-int P2=6; // Button +
-int P3=7; // Button -
-int P4=8; // SWITCH Alarm
-int P5 = 9;
-int P6 = 10;
-int P7 = 11;
-//**************Alarm***************//
-#define buzzer 12
 #define LED 13
+#define buzzer 10
 
-//************Variables**************//
-int hourupg,minupg,yearupg,monthupg,dayupg,menu =0,setAll =0;
+int hourupg;
+int minupg;
+int yearupg;
+int monthupg;
+int dayupg;
+int menu =0;
+int setAll =0;
 
 uint8_t alarmHours1 = 0, alarmMinutes1 = 0, alarmHours2 = 0, alarmMinutes2 = 0, alarmHours3 = 0, alarmMinutes3 = 0;  // Holds the current alarm time
 
-void setup()
-{
-  lcd.init();
-  lcd.backlight();
-  lcd.clear();
- //clock button
+
+void setup() 
+{ 
+  servo_0.attach(0);
+  servo_1.attach(1);
+  servo_2.attach(2);// 伺服馬達的訊號線
+  
   pinMode(P1,INPUT_PULLUP);
   pinMode(P2,INPUT_PULLUP);
   pinMode(P3,INPUT_PULLUP);
   pinMode(P4,INPUT_PULLUP);
-  //servo button
-  pinMode(P5, INPUT);
-  servo_5.attach(5, 500, 2500);
-  pinMode(P6, INPUT);
-  servo_6.attach(6, 500, 2500);
-  pinMode(P7, INPUT);
-  servo_7.attach(7, 500, 2500);
+  pinMode(P5,INPUT_PULLUP);
   
   pinMode(LED,OUTPUT);
   pinMode(buzzer, OUTPUT); // Set buzzer as an output
+  
   printAllOff();
-  Serial.begin(9600);
+  
+  lcd.init();
+  lcd.backlight();
+  lcd.clear();
   Wire.begin();
   Rtc.Begin();
 
-      // The default display shows the date and time
   int menu=0;
-  
-  Serial.begin(115200);
-}
+} 
 
-void loop()
-{
-   if((digitalRead(P2)== LOW) && (digitalRead(P3)== LOW))                                                                                                                                                                     
+void loop() {
+
+  if((digitalRead(P5)== LOW))                                                                                                                                                                     
   {
     DisplaySetHourAll1();
     DisplaySetMinuteAll1();
@@ -74,21 +68,21 @@ void loop()
     DisplaySetMinuteAll3();
     lcd.clear();
     lcd.setCursor(5,0);
-    lcd.print("ALARM1"); //first alarm
+    lcd.print("ALARM1");
     lcd.setCursor(5,1);
     lcd.print(alarmHours1, DEC);
     lcd.print(":");
     lcd.print(alarmMinutes1, DEC);
 
     lcd.setCursor(5,2);
-    lcd.print("ALARM2"); //second alarm
+    lcd.print("ALARM2");
     lcd.setCursor(5,3);
     lcd.print(alarmHours2, DEC);
     lcd.print(":");
     lcd.print(alarmMinutes2, DEC);
 
     lcd.setCursor(13,0);
-    lcd.print("ALARM3"); //third alarm
+    lcd.print("ALARM3");
     lcd.setCursor(13,1);
     lcd.print(alarmHours3, DEC);
     lcd.print(":");
@@ -96,46 +90,15 @@ void loop()
     delay(1000);
     lcd.clear();
   }
-// in which subroutine should we go?
+
   if (menu==0)
     {
      DisplayDateTime(); // void DisplayDateTime
      Alarm(); // Alarm control
      }
     delay(100);
+}
 
-    if (digitalRead(P5) == 1) {
-    delay(20); // Wait for 20 millisecond(s)
-    if (digitalRead(P5) == 1) {
-      degree = servo_5.read();
-      servo_5.write((degree + 5));
-      delay(30); // Wait for 30 millisecond(s)
-    }
-    while (digitalRead(P5) == 1) {
-    }
-  }
-  if (digitalRead(P6) == 1) {
-    delay(20); // Wait for 20 millisecond(s)
-    if (digitalRead(P6) == 1) {
-      degree2 = servo_6.read();
-      servo_6.write((degree2 + 5));
-      delay(30); // Wait for 30 millisecond(s)
-    }
-    while (digitalRead(P6) == 1) {
-    }
-  }
-  if (digitalRead(P7) == 1) {
-    delay(20); // Wait for 20 millisecond(s)
-    if (digitalRead(P7) == 1) {
-      degree3 = servo_7.read();
-      servo_7.write((degree3 + 5));
-      delay(30); // Wait for 30 millisecond(s)
-    }
-    while (digitalRead(P7) == 1) {
-    }
-  }
- }
- 
 void DisplayDateTime ()
 {
 // We show the current date and time
@@ -157,13 +120,7 @@ void DisplayDateTime ()
   }
   lcd.print(now.Minute(), DEC);
   minupg=now.Minute();
-  lcd.print(":");
-  if (now.Second()<=9)
-  {
-    lcd.print("0");
-  }
-  lcd.print(now.Second(), DEC);
-
+  
   lcd.setCursor(0, 1);
   lcd.print("Date : ");
   if (now.Day()<=9)
@@ -191,7 +148,7 @@ void DisplayDateTime ()
   //lcd.print(DOW[now.dayOfWeek()]);
 }
 
-void DisplaySetHourAll1()// Setting first alarm hour
+void DisplaySetHourAll1()// Setting the alarm hour
 {
   while(digitalRead(P1)==HIGH){
 
@@ -228,7 +185,7 @@ void DisplaySetHourAll1()// Setting first alarm hour
  delay(200);
 }
 
-void DisplaySetMinuteAll1()// Setting first alarm minutes
+void DisplaySetMinuteAll1()// Setting the alarm minutes
  {
   while(digitalRead(P1)==HIGH){ 
 
@@ -264,7 +221,7 @@ void DisplaySetMinuteAll1()// Setting first alarm minutes
  delay(200);
 }
 
-void DisplaySetHourAll2()// Setting second alarm hour
+void DisplaySetHourAll2()// Setting the alarm hour
 {
   while(digitalRead(P1)==HIGH){
 
@@ -301,7 +258,7 @@ void DisplaySetHourAll2()// Setting second alarm hour
  delay(200);
 }
 
-void DisplaySetMinuteAll2()// Setting second alarm minutes
+void DisplaySetMinuteAll2()// Setting the alarm minutes
  {
   while(digitalRead(P1)==HIGH){ 
 
@@ -335,9 +292,9 @@ void DisplaySetMinuteAll2()// Setting second alarm minutes
   delay(200);
  }
  delay(200);
-}
+ }
 
-void DisplaySetHourAll3()// Setting third alarm hour
+void DisplaySetHourAll3()// Setting the alarm hour
 {
   while(digitalRead(P1)==HIGH){
 
@@ -374,7 +331,7 @@ void DisplaySetHourAll3()// Setting third alarm hour
  delay(200);
 }
 
-void DisplaySetMinuteAll3()// Setting third alarm minutes
+void DisplaySetMinuteAll3()// Setting the alarm minutes
  {
   while(digitalRead(P1)==HIGH){ 
 
@@ -408,7 +365,7 @@ void DisplaySetMinuteAll3()// Setting third alarm minutes
   delay(200);
  }
  delay(200);
-}
+ }
 
 void printAllOn1(){
   lcd.setCursor(0,3);
@@ -444,17 +401,26 @@ void Alarm(){
   if (setAll==1)
     {
      printAllOn1();    
-  
      RtcDateTime now = Rtc.GetDateTime();
-     if ( now.Hour() == alarmHours1 && now.Minute() == alarmMinutes1 )
+     unsigned long currentMillis1 = millis();
+     if ( now.Hour() == alarmHours1 && now.Minute() == alarmMinutes1)
         {
          lcd.noBacklight();
          RtcDateTime now = Rtc.GetDateTime();
          digitalWrite(LED,HIGH);
          tone(buzzer,880); //play the note "A5" (LA5)
          delay (300);
-         tone(buzzer,698); //play the note "F6" (FA5)
+         tone(buzzer,698); //play the note "F6" (FA5)     
+         delay(300);    
          lcd.backlight();
+         delay(300);
+         if (currentMillis1 - previousMillis1 >= interval1) {
+         servo_0.write(60); 
+         delay(250);
+         servo_0.write(90);
+         delay(1000);
+         previousMillis1 = currentMillis1;
+         }
         }
     else{
          noTone (buzzer);
@@ -467,6 +433,7 @@ void Alarm(){
      printAllOn2();    
   
      RtcDateTime now = Rtc.GetDateTime();
+     unsigned long currentMillis2 = millis();
      if ( now.Hour() == alarmHours2 && now.Minute() == alarmMinutes2 )
         {
          lcd.noBacklight();
@@ -476,6 +443,14 @@ void Alarm(){
          delay (300);
          tone(buzzer,698); //play the note "F6" (FA5)
          lcd.backlight();
+         delay(300);
+        if (currentMillis2 - previousMillis2 >= interval2) {
+         servo_1.write(60); 
+         delay(250);
+         servo_1.write(90);
+         delay(1000);
+         previousMillis2 = currentMillis2;
+         }
         }
     else{
          noTone (buzzer);
@@ -488,6 +463,7 @@ void Alarm(){
      printAllOn3();    
   
      RtcDateTime now = Rtc.GetDateTime();
+     unsigned long currentMillis3 = millis();
      if ( now.Hour() == alarmHours3 && now.Minute() == alarmMinutes3 )
         {
          lcd.noBacklight();
@@ -497,12 +473,20 @@ void Alarm(){
          delay (300);
          tone(buzzer,698); //play the note "F6" (FA5)
          lcd.backlight();
+         delay(300);
+         if (currentMillis3 - previousMillis3 >= interval3) {
+         servo_2.write(60); 
+         delay(250);
+         servo_2.write(90);
+         delay(1000);
+         previousMillis3 = currentMillis3;
+         }
         }
     else{
          noTone (buzzer);
          digitalWrite(LED,LOW);
         }
-    } 
+    }
     
   if (setAll==4)
     {

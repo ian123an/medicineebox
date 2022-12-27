@@ -14,6 +14,7 @@ int P1=6; // Button SET MENU'
 int P2=7; // Button +
 int P3=8; // Button -
 int P4=9; // SWITCH Alarm
+int P5=5; // alarm menu
 
 #define LED 13
 #define buzzer 10
@@ -39,6 +40,7 @@ void setup()
   pinMode(P2,INPUT_PULLUP);
   pinMode(P3,INPUT_PULLUP);
   pinMode(P4,INPUT_PULLUP);
+  pinMode(P5,INPUT_PULLUP);
   
   pinMode(LED,OUTPUT);
   pinMode(buzzer, OUTPUT); // Set buzzer as an output
@@ -56,7 +58,7 @@ void setup()
 
 void loop() {
 
-  if((digitalRead(P2)== LOW) && (digitalRead(P3)== LOW))                                                                                                                                                                     
+  if((digitalRead(P5)== LOW))                                                                                                                                                                     
   {
     DisplaySetHourAll1();
     DisplaySetMinuteAll1();

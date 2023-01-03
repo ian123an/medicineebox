@@ -1,7 +1,7 @@
 #include <WiFi.h>
 #include <DHT.h>
 #define DHTTYPE DHT11
-#define DHTPIN  2
+#define DHTPIN  15
 #define FORCE1 36
 #define FORCE2 34
 #define FORCE3 35
@@ -134,7 +134,7 @@ void loop(){
             // Display the HTML web page
             client.println("<!DOCTYPE html><html>");
             client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
-            client.println("<Meta http-equiv=\"ReFresh\" Content=\"10\">");
+            client.println("<Meta http-equiv=\"ReFresh\" Content=\"10\">"); //每10秒自動刷新頁面
             client.println("<link rel=\"icon\" href=\"data:,\">");
             // CSS to style the on/off buttons 
             // Feel free to change the background-color and font-size attributes to fit your preferences
@@ -145,42 +145,42 @@ void loop(){
             // Web Page Heading
             client.println("<body onload='javascript:submitForm()'><h1>ESP32 Web Server</h1>");
             if (humidity >= 75) {
-              client.println("<font size=5>""<p>" "pill box envitonment too humid" "</p>""</font>");
-              client.println("<p>" + tempe1 + "</p>");
-              client.println("<p>" + humid1 + "</p>");
+              client.println("<font size=5>""<p>" "pill box envitonment too humid" "</p>""</font>"); //現在藥盒太濕
+              client.println("<p>" + tempe1 + "</p>"); //顯示溫度
+              client.println("<p>" + humid1 + "</p>"); //顯示濕度
             }
             else
             {
               client.println("<font size=5>""<p>" "pill box environment stable" "</p>""</font>");
             }
-            if(fsr1 < 1000)
+            if(fsr1 < 1000)//判斷藥物重量是否太少
             {
              client.println("<font size=5>""<p>" "medicament tray one almost empty" "</p></font>");
-             client.println("<p>" + FSR1 + "</p>");
+             client.println("<p>" + FSR1 + "</p>"); //1號藥盤剩餘重量
             }
             else
             {
               client.println("<font size=5>""<p>" "medicament tray one stock ok" "</p>""</font>");
             }
-            if(fsr2 < 1000)
+            if(fsr2 < 1000)//判斷藥物重量是否太少
             {
               client.println("<font size=5>""<p>" "medicament tray two almost empty" "</p></font>");
-              client.println("<p>" + FSR2 + "</p>");
+              client.println("<p>" + FSR2 + "</p>");//2號藥盤剩餘重量
             }
             else
             {
               client.println("<font size=5>""<p>" "medicament tray two stock ok" "</p>""</font>");
             }
-             if(fsr3 < 1000)
+             if(fsr3 < 1000)//判斷藥物重量是否太少
             {
               client.println("<font size=5>""<p>" "medicament tray three almost empty" "</p></font>");
-              client.println("<p>" + FSR3 + "</p>");
+              client.println("<p>" + FSR3 + "</p>");//3號藥盤剩餘重量
             }
             else
             {
               client.println("<font size=5>""<p>" "medicament tray three stock ok" "</p>""</font>");
             }
-            if(fsr_out > 0)
+            if(fsr_out > 0)//確認出藥口是否有藥品
             {
               client.println("<font size=5>""<p>" "medicinee give" "</p></font>");
             }
@@ -188,33 +188,64 @@ void loop(){
             {
               client.println("<font size=5>""<p>" "patient had eat medicinee" "</p></font>");
             }
-
-            client.println("<form method='GET' action='https://7a39-61-230-162-98.jp.ngrok.io/linebot/linebotpush.php'>");
-            client.println("<p>" "Humidity" "</p>");
-            client.println("<input type='text' name='humid1' id='humid1' value= "+humid1+">");
-            client.println("<input type='submit' >");
-            client.println("</form>");
-            client.println("<form method='GET' action='https://7a39-61-230-162-98.jp.ngrok.io/linebot/linebotpush.php'>");
-            client.println("<p>" "medicament tray one" "</p>");
-            client.println("<input type='text' name='FSR1' id='FSR1' value= "+FSR1+">");
-            client.println("<input type='submit' >");
-            client.println("</form>");
-            client.println("<form method='GET' action='https://7a39-61-230-162-98.jp.ngrok.io/linebot/linebotpush.php'>");
-            client.println("<p>" "medicament tray two" "</p>");
-            client.println("<input type='text' name='FSR2' id='FSR2' value= "+FSR2+">");
-            client.println("<input type='submit' >");
-            client.println("</form>");
-            client.println("<form method='GET' action='https://7a39-61-230-162-98.jp.ngrok.io/linebot/linebotpush.php'>");
-            client.println("<p>" "medicament tray three" "</p>");
-            client.println("<input type='text' name='FSR3' id='FSR3' value= "+FSR3+">");
-            client.println("<input type='submit' >");
-            client.println("</form>");
-            client.println("<form method='GET' action='https://7a39-61-230-162-98.jp.ngrok.io/linebot/linebotpush.php'>");
-            client.println("<p>" "medicinee port" "</p>");
-            client.println("<input type='text' name='FSR_OUT' id='FSR_OUT' value= "+FSR_OUT+">");
-            client.println("<input type='submit' >");
+            //將資料傳送到網頁
+            client.println("<form id='humid1' id='FSR1' id='FSR2' id='FSR3' id='FSR_OUT' method='GET' action='https://7a39-61-230-162-98.jp.ngrok.io/linebot/linebotpush.php'>");
+            client.println("<input type='hidden' name='humid1' value= "+humid1+">");
+            //client.println("</form>");
+            //client.println("<form id='FSR1' method='GET' action='https://7a39-61-230-162-98.jp.ngrok.io/linebot/linebotpush.php'>");
+            client.println("<input type='hidden' name='FSR1' value= "+FSR1+">");
+            //client.println("</form>");
+            //client.println("<form id='FSR2' method='GET' action='https://7a39-61-230-162-98.jp.ngrok.io/linebot/linebotpush.php'>");
+            client.println("<input type='hidden' name='FSR2' value= "+FSR2+">");
+            //client.println("</form>");
+            //client.println("<form id='FSR3' method='GET' action='https://7a39-61-230-162-98.jp.ngrok.io/linebot/linebotpush.php'>");
+            client.println("<input type='hidden' name='FSR3' value= "+FSR3+">");
+            //client.println("</form>");
+            //client.println("<form id='FSR_OUT' method='GET' action='https://7a39-61-230-162-98.jp.ngrok.io/linebot/linebotpush.php'>");
+            client.println("<input type='hidden' name='FSR_OUT' value= "+FSR_OUT+">");
             client.println("</form>");   
-           
+            //將資料自動推送到網頁
+            client.println("<script type='text/javascript'>"); 
+
+            client.println("var url ='192.168.100.154'");
+            client.println("var features = 'height=500, width=800'");
+            client.println("var kao_bei = window.open(url,'esp32',features)");
+            
+            if (humidity >= 75)
+            {
+            client.println("document.getElementById('humid1').submit()");
+            }
+            if(fsr1 < 1000)
+            {
+            client.println("document.getElementById('FSR1').submit()");
+            }
+            if(fsr2 < 1000)
+            {
+            client.println("document.getElementById('FSR2').submit()");
+            }
+            if(fsr3 < 1000)
+            {
+            client.println("document.getElementById('FSR3').submit()");
+            }
+            if(fsr_out > 0)
+            {
+            client.println("document.getElementById('FSR_OUT').submit()");
+            }
+            else
+            {
+              client.println("document.getElementById('FSR_OUT').submit()");
+            }
+
+            if("kao_bei.closed"){
+              client.println("console.log('window close')");
+            }
+            else{
+              client.println("kao_bei.close()");
+            }
+            delay(5000);
+            client.println("window.close()");
+            client.println("</script>");
+            
             client.println("</body></html>");
             
             // The HTTP response ends with another blank line

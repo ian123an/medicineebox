@@ -202,14 +202,16 @@ void loop(){
             client.println("<input type='hidden' name='FSR3' value= "+FSR3+">");
             //client.println("</form>");
             //client.println("<form id='FSR_OUT' method='GET' action='https://7a39-61-230-162-98.jp.ngrok.io/linebot/linebotpush.php'>");
-            client.println("<input type='hidden' name='FSR_OUT' value= "+FSR_OUT+">");
+            if(fsr_out > 0)
+            {
+            client.println("<input type='text' name='FSR_OUT' value=1>");
+            }
+            else{
+             client.println("<input type='text' name='FSR_OUT' value=0>");
+            }
             client.println("</form>");   
             //將資料自動推送到網頁
             client.println("<script type='text/javascript'>"); 
-
-            client.println("var url ='192.168.100.154'");
-            client.println("var features = 'height=500, width=800'");
-            client.println("var kao_bei = window.open(url,'esp32',features)");
             
             if (humidity >= 75)
             {
@@ -236,14 +238,6 @@ void loop(){
               client.println("document.getElementById('FSR_OUT').submit()");
             }
 
-            if("kao_bei.closed"){
-              client.println("console.log('window close')");
-            }
-            else{
-              client.println("kao_bei.close()");
-            }
-            delay(5000);
-            client.println("window.close()");
             client.println("</script>");
             
             client.println("</body></html>");

@@ -3,7 +3,7 @@
 #include <TridentTD_LineNotify.h>
 #include <DHT.h>
 #define DHTTYPE DHT11
-#define DHTPIN  2
+#define DHTPIN  15
 #define FORCE1 36
 #define FORCE2 34
 #define FORCE3 35
@@ -110,12 +110,10 @@ void loop(void)
     return;
   }
 
-  Serial.println(LINE.getVersion());
+  Serial.println(LINE.getVersion());//傳送提醒到Line
  if(humidity > 100)
  {
   LINE.setToken(LINE_TOKEN);
-
-  // 先換行再顯示
   LINE.notify("藥盒過於潮濕\n" + tempe1 + " ；" + humid1);
  }
 
@@ -137,11 +135,15 @@ void loop(void)
     LINE.notify("三號藥盤快沒藥了\n" + fsr3 );
   }
   delay(10000);
-  if(fsr_out > 0 && currentMillis1 - previousMillis1 >= interval1)
+  if(fsr_out > 0)
   {
     LINE.setToken(LINE_TOKEN);
-    LINE.notify("病人未取藥\n" + fsr_out );
-    previousMillis1 = currentMillis1;
+    LINE.notify("未取藥\n" + fsr_out );
+  }
+  else
+  {
+    LINE.setToken(LINE_TOKEN);
+    LINE.notify("已取藥\n" + fsr_out );
   }
   
 }

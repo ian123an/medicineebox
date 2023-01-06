@@ -26,16 +26,9 @@ String FSR2="";
 String FSR3="";
 String FSR_OUT="";
 
-// Current time
 unsigned long currentTime = millis();
-// Previous time
 unsigned long previousTime = 0; 
-// Define timeout time in milliseconds (example: 2000ms = 2s)
 const long timeoutTime = 2000;
-
-unsigned long currentTime1 = millis();
-unsigned long previousTime1 = 0; 
-const long timeoutTime1 = 12000;
 
 void setup() {
   Serial.begin(115200);
@@ -92,17 +85,17 @@ void loop(){
 
    tempe1="Temperature:"+String((int)(temp_f-32)*5/9)+"oC";   
    humid1="Humidity:"+String((int)humidity)+"%";
-   FSR1 = String((int)fsr1)+"g  pill1";
-   FSR2 = String((int)fsr2)+"g  pill2";
-   FSR3 = String((int)fsr3)+"g  pill3";
-   FSR_OUT = String((int)fsr_out)+"g  pill_out";
+   FSR1 = String((int)fsr1);
+   FSR2 = String((int)fsr2);
+   FSR3 = String((int)fsr3);
+   FSR_OUT = String((int)fsr_out);
 
    Serial.println(tempe1);
    Serial.println(humid1);
-   Serial.println(FSR1);
-   Serial.println(FSR2);
-   Serial.println(FSR3);
-   Serial.println(FSR_OUT);
+   Serial.println(fsr1);
+   Serial.println(fsr2);
+   Serial.println(fsr3);
+   Serial.println(fsr_out);
    delay(10000);
     
   WiFiClient client = server.available();   // Listen for incoming clients
@@ -128,13 +121,11 @@ void loop(){
             client.println("Content-type:text/html");
             client.println("Connection: close");
             client.println();
-
-            
             
             // Display the HTML web page
             client.println("<!DOCTYPE html><html>");
             client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
-            client.println("<Meta http-equiv=\"ReFresh\" Content=\"10\">"); //每10秒自動刷新頁面
+            client.println("<Meta http-equiv=\"ReFresh\" Content=\"20\">"); //每20秒自動刷新頁面
             client.println("<link rel=\"icon\" href=\"data:,\">");
             // CSS to style the on/off buttons 
             // Feel free to change the background-color and font-size attributes to fit your preferences
@@ -191,52 +182,20 @@ void loop(){
             //將資料傳送到網頁
             client.println("<form id='humid1' id='FSR1' id='FSR2' id='FSR3' id='FSR_OUT' method='GET' action='https://7a39-61-230-162-98.jp.ngrok.io/linebot/linebotpush.php'>");
             client.println("<input type='hidden' name='humid1' value= "+humid1+">");
-            //client.println("</form>");
-            //client.println("<form id='FSR1' method='GET' action='https://7a39-61-230-162-98.jp.ngrok.io/linebot/linebotpush.php'>");
             client.println("<input type='hidden' name='FSR1' value= "+FSR1+">");
-            //client.println("</form>");
-            //client.println("<form id='FSR2' method='GET' action='https://7a39-61-230-162-98.jp.ngrok.io/linebot/linebotpush.php'>");
             client.println("<input type='hidden' name='FSR2' value= "+FSR2+">");
-            //client.println("</form>");
-            //client.println("<form id='FSR3' method='GET' action='https://7a39-61-230-162-98.jp.ngrok.io/linebot/linebotpush.php'>");
             client.println("<input type='hidden' name='FSR3' value= "+FSR3+">");
-            //client.println("</form>");
-            //client.println("<form id='FSR_OUT' method='GET' action='https://7a39-61-230-162-98.jp.ngrok.io/linebot/linebotpush.php'>");
-            if(fsr_out > 0)
-            {
-            client.println("<input type='text' name='FSR_OUT' value=1>");
-            }
-            else{
-             client.println("<input type='text' name='FSR_OUT' value=0>");
-            }
+            client.println("<input type='hidden' name='FSR_OUT' value="+FSR_OUT+">");       
+
             client.println("</form>");   
             //將資料自動推送到網頁
             client.println("<script type='text/javascript'>"); 
             
-            if (humidity >= 75)
-            {
             client.println("document.getElementById('humid1').submit()");
-            }
-            if(fsr1 < 1000)
-            {
             client.println("document.getElementById('FSR1').submit()");
-            }
-            if(fsr2 < 1000)
-            {
             client.println("document.getElementById('FSR2').submit()");
-            }
-            if(fsr3 < 1000)
-            {
             client.println("document.getElementById('FSR3').submit()");
-            }
-            if(fsr_out > 0)
-            {
             client.println("document.getElementById('FSR_OUT').submit()");
-            }
-            else
-            {
-              client.println("document.getElementById('FSR_OUT').submit()");
-            }
 
             client.println("</script>");
             

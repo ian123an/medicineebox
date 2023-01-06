@@ -1,81 +1,39 @@
 #include <WiFi.h>
-#include <WiFiClient.h>
-#include <TridentTD_LineNotify.h>
-#define FORCE 13
-
-// 設定網路基地台SSID跟密碼
-char ssid[] = "milkcoco";
-char password[] = "a8222820";
-
-int fsr;
-String FSR="";
-
-unsigned long previousMillis = 0;        // will store last temp was read
-const long interval = 2000;              // interval at which to read sensor
-const char* host = "maker.ifttt.com";
-const int httpPort = 80;
-
-void setup(void)
-{
-  Serial.begin(115200);  // 設定速率 感測器
-
-  WiFi.mode(WIFI_STA);
-  // 連接無線基地台
-  WiFi.begin(ssid, password);
-  Serial.print("\n\r \n\rWorking to connect");
-
-  // 等待連線，並從 Console顯示 IP
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("");
-  Serial.println("FSR Reading Server");
-  Serial.print("Connected to ");
-  Serial.println(ssid);
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
-}
+#include <HTTPClient.h>
  
+const char* ssid = "yourNetworkName";
+const char* password = "yourNetworkPassword";
+
+void setup() {
+ 
+  Serial.begin(115200);
+  delay(4000);
+  WiFi.begin(ssid, password);
+ 
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting to WiFi..");
+  }
+ 
+  Serial.println("Connected to the WiFi network");
+ 
+}
+
 void loop()
 {
-  // 量測間等待至少 2 秒
-  unsigned long currentMillis = millis();
-  
-  if(currentMillis - previousMillis >= interval) {
-    // 將最後讀取感測值的時間紀錄下來 
-    previousMillis = currentMillis;   
+  HTTPClient http;
 
-     fsr = analogRead(FORCE);
-    
-    // 檢查值是否為空值
-    if (isnan(fsr)) {
-       Serial.println("Failed to read from FSR sensor!");
-       return;
-    }
-  }
+  http.begin("https://38f6-223-136-254-194.jp.ngrok.io/linebot/linebotpush.php");
 
-  // 除錯用
-  
-  FSR = String((int)fsr)+"g";
-
-  Serial.println(fsr);
-
-  WiFiClient client;
-  Serial.print("connecting to ");
-  Serial.println(host);
-  if (!client.connect(host, httpPort)) {
-    Serial.println("connection failed");
-    return;
-  }
-  // 以下 XXX-XXXX-XXX 要換成自己的 Key
-  if(fsr < 0){
-  String getStr_line = "GET /trigger/weight/with/key/bDDkLOc44SV3UviNx67Iq_?value="+FSR+""+" HTTP/1.1\r\n"
-  + "Host: " + host + "\r\n" + "User-Agent: BuildFailureDetectorESP32\r\n" + "Connection: close\r\n\r\n";
-  
-  Serial.println(getStr_line);
-  client.print(getStr_line);
-  client.stop();
-  }
-  delay(10000);
+  if (httpCode > 0) { //检查返回的代码
+ 
+        String payload = http.getString();
+        Serial.println(httpCode);
+        Serial.println(payload);
+ 
+}else {
+ 
+      Serial.println("Error on HTTP request");
+ http.end();
+}
 }

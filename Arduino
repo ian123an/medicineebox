@@ -7,8 +7,8 @@ RtcDS3231<TwoWire> Rtc(Wire);
 LiquidCrystal_I2C lcd(0x27,20,4); // Display  I2C 20 x 4
 
 Servo servo_0,servo_1,servo_2; // 建立Servo物件
-unsigned long previousMillis = 0;
-const long interval = 51000;
+unsigned long previousMillis = 0,previousMillis1 = 0,previousMillis2 = 0;
+const long interval = 51000,interval1 = 51000,interval2 = 51000;
 
 int P1=6; // Button SET MENU'
 int P2=7; // Button +
@@ -66,7 +66,7 @@ void loop() {
   if((digitalRead(P6)== LOW)) 
   {
     servo_0.write(60); 
-    delay(180);
+    delay(195);
     servo_0.write(90);
     delay(1000);
   }
@@ -74,7 +74,7 @@ void loop() {
   if((digitalRead(P7)== LOW)) 
   {
     servo_1.write(60); 
-    delay(180);
+    delay(195);
     servo_1.write(90);
     delay(1000);
   }
@@ -82,7 +82,7 @@ void loop() {
   if((digitalRead(P8)== LOW)) 
   {
     servo_2.write(60); 
-    delay(180);
+    delay(195);
     servo_2.write(90);
     delay(1000);
   }
@@ -444,7 +444,7 @@ void Alarm(){
          delay(300);
           if (currentMillis - previousMillis >= interval) {//馬達甚麼時候轉
             servo_0.write(60); 
-            delay(150);
+            delay(195);
             servo_0.write(90);
             delay(1000);
             previousMillis = currentMillis;
@@ -454,7 +454,7 @@ void Alarm(){
          noTone (buzzer);
          digitalWrite(LED,LOW);
         }
-        
+      
     } 
 
     if (setAll==2)
@@ -462,7 +462,7 @@ void Alarm(){
      printAllOn2();    
   
      RtcDateTime now = Rtc.GetDateTime();
-     unsigned long currentMillis = millis();
+     unsigned long currentMillis1 = millis();
      if ( now.Hour() == alarmHours2 && now.Minute() == alarmMinutes2 )
         {
          lcd.noBacklight();
@@ -473,12 +473,12 @@ void Alarm(){
          tone(buzzer,698); //play the note "F6" (FA5)
          lcd.backlight();
          delay(300);
-        if (currentMillis - previousMillis >= interval) {
+        if (currentMillis1 - previousMillis1 >= interval1) {
          servo_1.write(60); 
-         delay(250);
+         delay(195);
          servo_1.write(90);
          delay(1000);
-         previousMillis = currentMillis;
+         previousMillis1 = currentMillis1;
          }
         }
     else{
@@ -492,7 +492,7 @@ void Alarm(){
      printAllOn3();    
   
      RtcDateTime now = Rtc.GetDateTime();
-     unsigned long currentMillis = millis();
+     unsigned long currentMillis2 = millis();
      if ( now.Hour() == alarmHours3 && now.Minute() == alarmMinutes3 )
         {
          lcd.noBacklight();
@@ -503,12 +503,12 @@ void Alarm(){
          tone(buzzer,698); //play the note "F6" (FA5)
          lcd.backlight();
          delay(300);
-         if (currentMillis - previousMillis >= interval) {
+         if (currentMillis2 - previousMillis2 >= interval2) {
          servo_2.write(60); 
-         delay(250);
+         delay(195);
          servo_2.write(90);
          delay(1000);
-         previousMillis = currentMillis;
+         previousMillis2 = currentMillis2;
          }
         }
     else{
